@@ -6,8 +6,13 @@ import pickle
 with open('product_delivery_prediction.pkl', 'rb') as model_file:
     dtc = pickle.load(model_file)
 
+st.set_page_config(
+    page_title='Product Delivery Prediction',
+    page_icon="🚚",
+    layout="wide",
+)
 # Set the title
-st.title("Delivery Prediction App")
+st.title("Delivery Prediction App 🚚")
 
 # Create input fields for user input
 warehouse_block_mapping = {'A': 3, 'B': 4, 'C': 0, 'D': 1, 'F': 2}
@@ -26,18 +31,27 @@ gender = st.selectbox('Gender:', list(gender_mapping.keys()))
 discount_offered = st.slider('Discount Offered:', min_value=0, max_value=100, value=44)
 weight_in_gms = st.slider('Weight in grams:', min_value=0, max_value=2000, value=1233)
 
+submit_button = st.button('Submit')
+st.write(
+    f'<style>div.row-widget.stButton > button {{width: 1380px; height: 50px; font-size: 20px;}}</style>',
+    unsafe_allow_html=True
+)
 # Convert input data to NumPy array
-input_array = np.array([[warehouse_block_mapping[warehouse_block],
-                         mode_of_shipment_mapping[mode_of_shipment],
-                         customer_care_calls, customer_rating, cost_of_the_product,
-                         prior_purchases, product_importance_mapping[product_importance],
-                         gender_mapping[gender], discount_offered, weight_in_gms]])
+def make_prediction():
+    input_array = np.array([[warehouse_block_mapping[warehouse_block],
+                            mode_of_shipment_mapping[mode_of_shipment],
+                            customer_care_calls, customer_rating, cost_of_the_product,
+                            prior_purchases, product_importance_mapping[product_importance],
+                            gender_mapping[gender], discount_offered, weight_in_gms]])
 
-# Make a prediction
-prediction = dtc.predict(input_array)
-
-# Display the prediction result
-if prediction[0] == 0:
-    st.success("Product Delivered On Time")
-else:
-    st.error("Product Not Delivered On Time")
+    # Make a prediction
+    prediction = dtc.predict(input_array)
+    st.write('Model Prediction', prediction[0])
+    # Display the prediction result
+    if prediction[0] == 0:
+        st.success("Product Delivered On Time")
+    else:
+        st.error("Product Not Delivered On Time")
+if submit_button:
+    with st.spinner('Predicting...'):
+        make_prediction()
